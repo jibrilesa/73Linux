@@ -23,19 +23,19 @@ INSTALL(){
 
     #PKG=$(curl -s https://wsjt.sourceforge.io/wsjtx.html | grep amd64.deb | grep https | sed 's/.*href="//' | sed 's/.deb.*/.deb/')
     #PKGNAME=$(echo $PKG | awk -F "/" '{print $NF}')
-    sudo -A apt install wsjtx -y
+    PKG_INSTALL wsjtx
 }
 
 REMOVE(){
-    sudo -A dpkg --remove wsjtx
+    PKG_REMOVE wsjtx
 }
 
 VERSION(){
     if ! hash wsjtx 2>/dev/null; then
         CURRENT=0
-        NEWVER=$(apt show wsjtx | grep Version | awk '{print $2}')
+        NEWVER=$(PKG_REPO_VERSION wsjtx)
     else
-        CURRENT=$(apt list --installed | grep wsjtx/noble | awk '{print $2}')
-        NEWVER=$(apt show wsjtx | grep Version | awk '{print $2}')
+        CURRENT=$(PKG_VERSION wsjtx)
+        NEWVER=$(PKG_REPO_VERSION wsjtx)
     fi
 }

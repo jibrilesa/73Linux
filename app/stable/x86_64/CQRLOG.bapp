@@ -7,20 +7,26 @@ localVer=
 W3=
 
 INSTALL(){
-    sudo -A apt install -y lcl-2.0
-    sudo -A apt install -y lazarus
-    sudo -A apt install -y lcl
-    sudo -A apt install -y fp-utils
-    sudo -A apt install -y fp-units-misc
-    sudo -A apt install -y fp-units-gfx
-    sudo -A apt install -y fp-units-gtk2
-    sudo -A apt install -y fp-units-db
-    sudo -A apt install -y fp-units-math
-    sudo -A apt install -y fp-units-net
-    sudo -A apt install -y libssl-dev
-    sudo -A apt install -y mariadb-server
-    sudo -A apt install -y mariadb-client
-    sudo -A apt install -y default-libmysqlclient-dev
+    if [ -n "$IS_SUSE" ]; then
+        #packaged in the openSUSE hamradio repo
+        PKG_INSTALL cqrlog mariadb-server mariadb-client
+        return
+    fi
+
+    PKG_INSTALL lcl-2.0
+    PKG_INSTALL lazarus
+    PKG_INSTALL lcl
+    PKG_INSTALL fp-utils
+    PKG_INSTALL fp-units-misc
+    PKG_INSTALL fp-units-gfx
+    PKG_INSTALL fp-units-gtk2
+    PKG_INSTALL fp-units-db
+    PKG_INSTALL fp-units-math
+    PKG_INSTALL fp-units-net
+    PKG_INSTALL libssl-dev
+    PKG_INSTALL mariadb-server
+    PKG_INSTALL mariadb-client
+    PKG_INSTALL default-libmysqlclient-dev
 
     cd ${BAPSRC}
 	rm -rf cqrlog
@@ -35,7 +41,11 @@ INSTALL(){
 }
 
 REMOVE(){
-    echo "removal tool for $ID not available at this time"
+    if [ -n "$IS_SUSE" ]; then
+        PKG_REMOVE cqrlog
+    else
+        echo "removal tool for $ID not available at this time"
+    fi
 }
 
 

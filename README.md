@@ -39,6 +39,31 @@ If the above command fails, you may be missing git. If so, run
 
 and then run the git clone command again.
 
+# openSUSE Tumbleweed
+
+73 Linux also runs on x86_64 openSUSE Tumbleweed. The same scripts detect openSUSE and
+use zypper instead of apt. On the first run 73 Linux will:
+
+- add the openSUSE `hamradio` repository and the `GNOME:Apps` repository (for yad, at a low priority)
+- install cronie, libfuse2 (for AppImages), binutils and alsa-plugins-pulse
+- enable the cron service
+
+Install git first, then clone this fork and run it:
+
+     sudo zypper install git
+     git clone -b opensuse-tumbleweed https://github.com/jibrilesa/73Linux.git $HOME/73Linux && bash $HOME/73Linux/73.sh
+
+Notes for openSUSE:
+
+- 73 Linux does not upgrade the system on openSUSE. Run `sudo zypper dup` before a build.
+- By default openSUSE's sudo asks for the **root** password. Enter that when 73 Linux asks for the sudo password.
+- CQRLOG, CHIRP and WSJT-X are installed from the openSUSE repositories instead of being built or downloaded.
+- GridTracker and graywolf are installed from their upstream rpm packages.
+- Pat and Repeater-START only publish .deb packages. On openSUSE they are unpacked into the system
+  and tracked in /var/lib/73linux so they can be uninstalled again. Their package install scripts are not run.
+- gtkhash and the Caja seahorse extension are not available for Tumbleweed and are skipped.
+- 73 Linux updates itself from the repository and branch you cloned it from.
+
 # Issue reporting  and feature Requests
 
 https://github.com/km4ack/73Linux/issues

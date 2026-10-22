@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source ${BAPDIR}/bin/distro.sh
+
 APPLIST=./cache/app-list.bap
 APPPATH=app/stable/
 allAPPS=$(ls $APPSFILES)

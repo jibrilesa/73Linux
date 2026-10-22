@@ -29,15 +29,30 @@ INSTALL(){
 
     cd ${BAPSRC}
 
-    sudo -A apt install -y python3-gps gpsd-clients gpsd chrony python3-gi-cairo libgps-dev
-    sudo -A mv /etc/default/gpsd /etc/default/gpsd.org
+    PKG_INSTALL python3-gps gpsd-clients gpsd chrony python3-gi-cairo libgps-dev
+    sudo -A mkdir -p /etc/default
+    if [ -f /etc/default/gpsd ]; then
+        sudo -A mv /etc/default/gpsd /etc/default/gpsd.org
+    fi
     sudo -A wget https://raw.githubusercontent.com/km4ack/pi-scripts/master/gpsd -P /etc/default/
-    CHRONYCHK=$(grep "refclock SHM 0 offset 0.5 delay 0.2 refid NMEA" /etc/chrony/chrony.conf)
-        if [ -z "$CHRONYCHK" ]; then
-        echo "refclock SHM 0 offset 0.5 delay 0.2 refid NMEA" | sudo -A tee -a /etc/chrony/chrony.conf
+    if [ -n "$IS_SUSE" ]; then
+        #gpsd.service reads /etc/sysconfig/gpsd after /etc/default/gpsd,
+        #so its empty GPSD_OPTIONS would override ours
+        if [ -f /etc/sysconfig/gpsd ]; then
+            sudo -A sed -i 's/^GPSD_OPTIONS=.*/#&/' /etc/sysconfig/gpsd
         fi
-    #line below added per this issue - https://github.com/km4ack/pi-build/issues/146 24SEPT2020
-    sudo -A ln -s /lib/systemd/system/gpsd.service /etc/systemd/system/multi-user.target.wants/
+        #chrony on openSUSE picks up drop-in files from /etc/chrony.d
+        sudo -A mkdir -p /etc/chrony.d
+        echo "refclock SHM 0 offset 0.5 delay 0.2 refid NMEA" | sudo -A tee /etc/chrony.d/73linux-gps.conf
+        sudo -A systemctl enable gpsd.service chronyd.service
+    else
+        CHRONYCHK=$(grep "refclock SHM 0 offset 0.5 delay 0.2 refid NMEA" /etc/chrony/chrony.conf)
+            if [ -z "$CHRONYCHK" ]; then
+            echo "refclock SHM 0 offset 0.5 delay 0.2 refid NMEA" | sudo -A tee -a /etc/chrony/chrony.conf
+            fi
+        #line below added per this issue - https://github.com/km4ack/pi-build/issues/146 24SEPT2020
+        sudo -A ln -s /lib/systemd/system/gpsd.service /etc/systemd/system/multi-user.target.wants/
+    fi
 
     #Set GPS by serial ID
     #GPS Variable set by main script or update script and placed in config file
@@ -62,5 +77,5 @@ VERSION(){
 }
 
 REMOVE(){
-    sudo -A apt purge -y python3-gps gpsd-clients gpsd chrony python3-gi-cairo libgps-dev
+    PKG_REMOVE python3-gps gpsd-clients gpsd chrony python3-gi-cairo libgps-dev
 }

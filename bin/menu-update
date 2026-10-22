@@ -239,12 +239,29 @@ cat >hamradio.menu <<EOF
 </Menu>
 EOF
 
-sudo mv hamradio.menu /usr/share/extra-xdg-menus/
+if [ -n "$IS_SUSE" ]; then
+	#openSUSE has no extra-xdg-menus package. Merge the menu into the
+	#main applications menu and provide the Hamradio directory entry.
+	cat >HamRadio.directory <<EOF
+[Desktop Entry]
+Type=Directory
+Encoding=UTF-8
+Name=Hamradio
+Icon=applications-internet
+EOF
+	sudo mv HamRadio.directory /usr/share/desktop-directories/
+	sudo mkdir -p /etc/xdg/menus/applications-merged
+	sudo mv hamradio.menu /etc/xdg/menus/applications-merged/
+else
+	sudo mv hamradio.menu /usr/share/extra-xdg-menus/
+fi
 }
 
+source ${BAPDIR}/bin/distro.sh
+
 #verify ham menu is installed
-if ! hash extra-xdg-menus 2>/dev/null; then
-sudo apt install -y extra-xdg-menus
+if [ -z "$IS_SUSE" ] && [ ! -d /usr/share/extra-xdg-menus ]; then
+	PKG_INSTALL extra-xdg-menus
 fi
 
 BAP

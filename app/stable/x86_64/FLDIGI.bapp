@@ -36,7 +36,7 @@ INSTALL(){
 	if [ -z "$FLX" ]; then
 
 		LIBJPG=libjpeg62-dev
-		sudo -A apt install -y libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev 
+		PKG_INSTALL libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev 
 
 		#determine latest FLXMLRPC & download
 		FLXM=$(curl -s https://www.w1hkj.org/files/flxmlrpc/ | grep .tar.gz | sed 's/.*ref="//;s/">.*$//')
@@ -62,7 +62,7 @@ INSTALL(){
 	#Determine latest FLDIGI
 	FLTAR=$(curl -s https://www.w1hkj.org/files/fldigi/ | grep .tar.gz | sed 's/.*fldigi/fldigi/;s/.gz.*$/.gz/' | sort | tail -n1)
 	FLPKG=$(echo ${FLTAR} | sed 's/.tar.gz//')
-  sudo -A apt install -y libfltk1.3-dev libfltk1.3-compat-headers libsndfile1-dev portaudio19-dev
+  PKG_INSTALL libfltk1.3-dev libfltk1.3-compat-headers libsndfile1-dev portaudio19-dev
 
 	#Download latest FLDIGI tar file
 	cd ${BAPSRC}

@@ -35,7 +35,7 @@ INSTALL(){
 	if [ -z "$FLX" ]; then
 
 		LIBJPG=libjpeg62-dev
-		sudo -A apt install -y libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev libnova-0.16-0
+		PKG_INSTALL libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev libnova-0.16-0
 
 		#determine latest FLXMLRPC & download
 		FLXM=$(curl -s https://www.w1hkj.org/files/flxmlrpc/ | grep .tar.gz | sed 's/.*ref="//;s/">.*$//')
@@ -62,7 +62,7 @@ INSTALL(){
 	#Determine latest FLRIG
 	RIGTAR=$(curl -s https://www.w1hkj.org/files/flrig/ | grep .tar.gz | sed 's/.*ref="//;s/".*$//')
 	RIGPKG=$(echo ${RIGTAR} | sed 's/.tar.gz//')
-  sudo -A apt install -y libfltk1.3-dev libfltk1.3-compat-headers
+  PKG_INSTALL libfltk1.3-dev libfltk1.3-compat-headers
 
 
 	#Download latest FLRIG
@@ -77,7 +77,7 @@ INSTALL(){
 	sudo -A make install
 	sudo -A ldconfig
 	sudo -A make clean
-	sudo -A apt-mark manual libjpeg9
+	[ -z "$IS_SUSE" ] && sudo -A apt-mark manual libjpeg9
 }
 
 

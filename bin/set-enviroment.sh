@@ -62,6 +62,9 @@ case "$distribution" in
     linuxmint)
         ls > /dev/null #nothing yet
         ;;
+    opensuse-tumbleweed)
+        ls > /dev/null #nothing yet
+        ;;
     *)
         echo "Possibly Unsupported: $distribution $version you have a $arch with $cpu cores"
         ;;

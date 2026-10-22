@@ -23,9 +23,9 @@ EOF
 }
 
 INSTALL(){
-    sudo -A apt install -y conky
-    sudo -A apt install -y conky-all
-    sudo -A apt install -y ruby-full
+    PKG_INSTALL conky
+    PKG_INSTALL conky-all
+    PKG_INSTALL ruby-full
     sudo -A gem install gpsd_client
     sudo -A gem install maidenhead
     ln -sf /usr/share/applications/conky.desktop ${HOME}/.config/autostart/conky.desktop
@@ -52,7 +52,7 @@ INSTALL(){
 
 REMOVE(){
     sudo -A killall conky
-    sudo -A apt purge -y conky conky-std
+    PKG_REMOVE conky conky-std
     sudo -A rm ${HOME}/.config/autostart/conky.desktop
 }
 

@@ -9,6 +9,16 @@ Maintainer=KM4ACK
 INSTALL(){
     CUR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
     cd ${BAPSRC}
+    if [ -n "$IS_SUSE" ]; then
+        #GridTracker publishes an rpm build. nwjs is not needed for GridTracker2.
+        RPM=$(curl -s https://gridtracker.org/index.php/downloads/gridtracker-downloads |
+            grep -oE 'https://download2.gridtracker.org/GridTracker2-[^"]*-x86_64\.rpm' | head -1)
+        wget --tries 2 --connect-timeout=60 ${RPM}
+        PKG=$(basename ${RPM})
+        PKG_INSTALL_FILE ${PKG}
+        rm ${PKG}
+        return
+    fi
     wget --tries 2 --connect-timeout=60 https://raw.githubusercontent.com/km4ack/pi-scripts/master/gt-download-links
     source gt-download-links
 
@@ -19,19 +29,27 @@ INSTALL(){
     wget --tries 2 --connect-timeout=60 $deb
     PKG=$(ls | grep -i gridtracker)
     sudo -A dpkg -i ${PKG}
-    sudo apt --fix-broken install -y
+    sudo -A apt --fix-broken install -y
     sudo -A dpkg -i ${PKG}    
     rm ${PKG} gt-download-links
 }
 
 REMOVE(){
-    sudo -A dpkg --remove gridtracker
+    if [ -n "$IS_SUSE" ]; then
+        PKG_REMOVE_LOCAL GridTracker2
+    else
+        sudo -A dpkg --remove gridtracker
+    fi
 }
 
 VERSION(){
     if ! hash gridtracker2 2>/dev/null; then
         CURRENT=0
         NEWVER=$(curl --max-time 20 -s https://raw.githubusercontent.com/km4ack/pi-scripts/master/gt-download-links | grep ^deb= | sed 's/.*GridTracker2-//;s/-amd64.*//')
+    elif [ -n "$IS_SUSE" ]; then
+        CURRENT=$(PKG_VERSION GridTracker2)
+        NEWVER=$(curl --max-time 20 -s https://gridtracker.org/index.php/downloads/gridtracker-downloads |
+            grep -oE 'GridTracker2-[^"]*-x86_64\.rpm' | head -1 | sed 's/GridTracker2-//;s/-x86_64.*//')
     else
         CURRENT=$(dpkg -l | grep -i gridtracker | awk '{print $3}' | sed 's/-.*//')
         NEWVER=$(curl --max-time 20 -s https://raw.githubusercontent.com/km4ack/pi-scripts/master/gt-download-links | grep ^deb= | sed 's/.*GridTracker2-//;s/-amd64.*//')

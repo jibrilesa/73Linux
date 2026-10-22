@@ -36,7 +36,7 @@ INSTALL(){
 	if [ -z "$FLX" ]; then
 
 		LIBJPG=libjpeg62-dev
-		sudo -A apt install -y libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev
+		PKG_INSTALL libfltk1.3-dev $LIBJPG libxft-dev libxinerama-dev libxcursor-dev libsndfile1-dev libsamplerate0-dev portaudio19-dev libpulse-dev libusb-1.0-0-dev texinfo libudev-dev
 
 		#determine latest FLXMLRPC & download
 		FLXM=$(curl -s https://www.w1hkj.org/files/flxmlrpc/ | grep .tar.gz | sed 's/.*ref="//;s/">.*$//')
@@ -54,7 +54,7 @@ INSTALL(){
 		sudo make clean
 	fi
 
-#sudo -A apt install -y flwrap
+#PKG_INSTALL flwrap
 
     CUR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
     mkdir -p ${BAPSRC}
@@ -64,7 +64,7 @@ INSTALL(){
 	#Determine latest FLWRAP
 	WRAPTAR=$(curl -s https://www.w1hkj.org/files/flwrap/ | grep .tar.gz | sed 's/.*ref="//;s/".*$//')
 	WRAPPKG=$(echo ${WRAPTAR} | sed 's/.tar.gz//')
-  sudo -A apt install -y libfltk1.3-dev libfltk1.3-compat-headers
+  PKG_INSTALL libfltk1.3-dev libfltk1.3-compat-headers
 
 	#Download latest FLWRAP
 	cd ${BAPSRC}

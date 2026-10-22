@@ -14,7 +14,7 @@ fi
 
 if ! hash pandoc 2>/dev/null; then
 	echo "installing dependency for checklist-generator - pandoc"
-	sudo -A apt install -y pandoc
+	PKG_INSTALL pandoc
 fi
 
 cd ${BUILDDIR}

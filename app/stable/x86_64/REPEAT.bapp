@@ -10,11 +10,11 @@ INSTALL(){
     CUR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
     mkdir -p ${BAPSRC}
 
-    sudo -A apt install -y gir1.2-osmgpsmap-1.0 gir1.2-geoclue-2.0 libosmgpsmap-1.0-1
+    PKG_INSTALL gir1.2-osmgpsmap-1.0 gir1.2-geoclue-2.0 libosmgpsmap-1.0-1
     REPEAT_LATEST=$(curl -s https://sourceforge.net/projects/repeater-start/files/ | grep all.deb | head -1 | sed 's/.*repeater/repeater/;s/".*//')
     cd ${BAPSRC}
     wget --tries 2 --connect-timeout=60 https://sourceforge.net/projects/repeater-start/files/$REPEAT_LATEST
-    sudo -A dpkg -i $REPEAT_LATEST
+    PKG_INSTALL_DEB $REPEAT_LATEST
 }
 
 UPDATE(){
@@ -22,7 +22,7 @@ UPDATE(){
 }
 
 REMOVE(){
-    sudo -A dpkg --remove repeater-start
+    PKG_REMOVE_LOCAL repeater-start
 }
 
 VERSION(){
@@ -30,7 +30,7 @@ VERSION(){
         CURRENT=0
         NEWVER=$(curl --max-time 20 -s https://sourceforge.net/projects/repeater-start/files/ | grep all.deb | head -1 | sed 's/.*repeater/repeater/;s/".*//' | sed 's/repeater-start_//;s/_all.*//')
     else
-        CURRENT=$(dpkg --list | grep repeater-start | awk '{print $3}')
+        CURRENT=$(PKG_VERSION repeater-start)
         NEWVER=$(curl --max-time 20 -s https://sourceforge.net/projects/repeater-start/files/ | grep all.deb | head -1 | sed 's/.*repeater/repeater/;s/".*//' | sed 's/repeater-start_//;s/_all.*//')
     fi
 }

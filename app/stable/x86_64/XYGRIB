@@ -7,7 +7,7 @@ localVer=0
 W3=
 
 INSTALL(){
-    sudo -A apt install -y xygrib xygrib-maps
+    PKG_INSTALL xygrib xygrib-maps
 }
 
 UPDATE(){
@@ -15,7 +15,7 @@ UPDATE(){
 }
 
 REMOVE(){
-    sudo -A apt purge -y xygrib xygrib-maps
+    PKG_REMOVE xygrib xygrib-maps
 }
 
 VERSION(){

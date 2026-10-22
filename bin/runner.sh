@@ -10,6 +10,8 @@ crontab -l > $TEMPCRON
 export CONFIG
 export LOG
 
+source ${BAPDIR}/bin/distro.sh
+
 FINISH(){
 	echo "cleaning up"
 	rm ${BUILDDIR}/*.gz /run/user/$UID/pw.txt /run/user/$UID/pw.p >/dev/null 2>&1
@@ -249,7 +251,7 @@ MYPASS
 	echo ${FREEMEM}
 
 	#increase swap file if less than 3G memory
-	if [ ${FREEMEM} -lt 3000 ]; then
+	if [ ${FREEMEM} -lt 3000 ] && [ -f /etc/dphys-swapfile ]; then
 		echo "##############################"
 		echo "Increasing Swap size for build"
 		echo "##############################"
@@ -260,9 +262,15 @@ MYPASS
 		sleep 10
 	fi
 
-	sudo -A apt upgrade -y
+	if [ -n "$IS_SUSE" ]; then
+		#Tumbleweed is updated with "zypper dup" which can need a reboot,
+		#so leave system upgrades to the user
+		echo "Skipping system upgrade. Run 'sudo zypper dup' yourself to update Tumbleweed."
+	else
+		sudo -A apt upgrade -y
+	fi
 	#below may be needed on x86 builds and does no harm if already installed.
-	sudo -A apt install build-essential git curl -y
+	PKG_INSTALL build-essential git curl
 	sudo -A mkdir -p /usr/local/share/applications
 	
 	mkdir -p ${HOME}/.config/autostart
@@ -296,7 +304,7 @@ EOF
 	sudo -A mv tempsound /etc/modprobe.d/alsa.conf
 
 	#install ham radio menu
-	sudo -A apt install -y extra-xdg-menus
+	PKG_INSTALL extra-xdg-menus
 
 	#setup bin dir and put in path
 	mkdir -p ${HOME}/bin
@@ -361,7 +369,7 @@ mv $TEMP $APPLIST
 	##################################
 
 	#reset swap size to default
-	if [ ${FREEMEM} -lt 3000 ]; then
+	if [ ${FREEMEM} -lt 3000 ] && [ -f /etc/dphys-swapfile ]; then
 		echo "##############################"
 		echo "Resetting swap size to default"
 		echo "##############################"
@@ -376,7 +384,7 @@ mv $TEMP $APPLIST
 	#	Clean Up
 	##################################
 	if uname -m | grep arm; then
-		sudo apt remove -y libhamlib4
+		PKG_REMOVE libhamlib4
 	fi
 
 	${BAPDIR}/bin/menu-update

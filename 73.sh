@@ -23,9 +23,22 @@ APPPATH=${BAPDIR}/app/stable/
 BAPINSTALL=${BAPDIR}/cache/install-path.bap
 BUILDDIR=$HOME/.bap-source-files
 
+#update from the repo and branch this copy was cloned from so forks
+#(like the openSUSE port) are not overwritten with upstream files
+REPO_URL=$(git -C ${BAPDIR} remote get-url origin 2>/dev/null | sed 's/\.git$//')
+REPO_BRANCH=$(git -C ${BAPDIR} rev-parse --abbrev-ref HEAD 2>/dev/null)
+if ! echo "${REPO_URL}" | grep -q '^https://github.com/' || [ -z "${REPO_BRANCH}" ] || [ "${REPO_BRANCH}" = HEAD ]; then
+	REPO_URL=https://github.com/km4ack/73Linux
+	REPO_BRANCH=master
+fi
+REPO_RAW=$(echo ${REPO_URL} | sed 's|https://github.com/|https://raw.githubusercontent.com/|')/${REPO_BRANCH}
+
 export BUILDDIR
 export LOGO
 export BAPDIR
+
+#package manager helpers (apt or zypper)
+source ${BAPDIR}/bin/distro.sh
 
 if [ ! -d ${BAPDIR}/cache ]; then
 	mkdir ${BAPDIR}/cache
@@ -34,7 +47,7 @@ fi
 echo "#############################"
 echo "Checking for 73 Linux Updates"
 echo "#############################"
-LATEST=$(curl -s https://raw.githubusercontent.com/km4ack/73Linux/master/changelog | head -1 | sed 's/version=//')
+LATEST=$(curl -s ${REPO_RAW}/changelog | head -1 | sed 's/version=//')
 CURRENT=$(grep version ${BAPDIR}/changelog | head -1 | sed 's/version=//')
 
 if (($(echo "${LATEST} ${CURRENT}" | awk '{print ($1 > $2)}'))); then
@@ -56,7 +69,7 @@ BUT=$?
 		if [ $? = 0 ]; then
 			cd $HOME
 			rm -rf 73Linux
-			git clone https://github.com/km4ack/73Linux.git
+			git clone -b ${REPO_BRANCH} ${REPO_URL}.git
 			yad --width=300 --height=150 --fixed --text-align=center --center --title="73 Linux" \
 				--image ${LOGO} --window-icon=${LOGO} --image-on-top --separator="|" --item-separator="|" \
 				--text "Update complete.\rPlease restart 73 Linux" \
@@ -75,7 +88,7 @@ fi
 
 echo "Checking for updated bap files"
 CUR=$(grep version ${BAPDIR}/app/.bap-version | sed 's/version=//')
-LATEST=$(curl -s https://raw.githubusercontent.com/km4ack/73Linux/master/app/.bap-version | grep version | head -1 | sed 's/version=//')
+LATEST=$(curl -s ${REPO_RAW}/app/.bap-version | grep version | head -1 | sed 's/version=//')
 if (($(echo "${LATEST} ${CUR}" | awk '{print ($1 > $2)}'))); then
 	echo "#######################################"
 	echo "#    Downloading latest bap files     #"
@@ -83,11 +96,11 @@ if (($(echo "${LATEST} ${CUR}" | awk '{print ($1 > $2)}'))); then
 	cd /run/user/$UID
 	git init 73Linux
 	cd 73Linux
-	git remote add -f origin https://github.com/km4ack/73Linux.git
+	git remote add -f origin ${REPO_URL}.git
 	git config pull.ff only
 	git config core.sparseCheckout true
 	echo "/app" >> .git/info/sparse-checkout
-	git pull origin master
+	git pull origin ${REPO_BRANCH}
 	cp -r /run/user/$UID/73Linux/app ${BAPDIR}/
 	rm -rf /run/user/$UID/73Linux
 else
@@ -103,21 +116,22 @@ echo "#  we begin.                          #"
 echo "#                                     #"
 echo "#  Enter your sudo password if asked  #"
 echo "#######################################"
-sudo apt update
+SUSE_SETUP
+PKG_UPDATE
 if ! hash yad 2>/dev/null; then
-	sudo apt install -y yad
+	PKG_INSTALL yad
 fi
 
 if ! hash jq 2>/dev/null; then
-	sudo apt install -y jq
+	PKG_INSTALL jq
 fi
 
-if ! hash bc >/dev/null; then
-	sudo apt install -y bc
+if ! hash bc 2>/dev/null; then
+	PKG_INSTALL bc
 fi
 
-if ! hash git >/dev/null; then
-	sudo apt install -y git
+if ! hash git 2>/dev/null; then
+	PKG_INSTALL git
 fi
 
 #####################################

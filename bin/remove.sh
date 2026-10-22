@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source ${BAPDIR}/bin/distro.sh
+
 
 APPLIST=${BAPDIR}/cache/remove-apps.bap
 APPPATH=app/stable/

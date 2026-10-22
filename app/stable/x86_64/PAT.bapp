@@ -9,7 +9,7 @@ INSTALL(){
     CUR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
     mkdir -p ${BAPSRC}
 
-    sudo -A apt install -y jq
+    PKG_INSTALL jq
 
     #############################
     #backup config file if exist
@@ -23,7 +23,7 @@ INSTALL(){
 	NEWPATV=$(curl -s https://github.com/la5nta/pat/releases | grep amd64 | head -1 | sed 's/.*pat_/pat_/' | sed 's/<\/a>.*$//')
 	NEWPAT=$(echo ${NEWPATV} | sed 's/pat_//' | sed 's/_linux_amd64.deb//')
 	wget --tries 2 --connect-timeout=60 https://github.com/la5nta/pat/releases/download/v${NEWPAT}/${NEWPATV}
-	sudo -A dpkg -i ${BAPSRC}/${NEWPATV}
+	PKG_INSTALL_DEB ${BAPSRC}/${NEWPATV}
 	rm ${BAPSRC}/${NEWPATV}
 
     WHO=`whoami`
@@ -61,7 +61,7 @@ INSTALL(){
 
 
 REMOVE(){
-    sudo -A dpkg --remove pat
+    PKG_REMOVE_LOCAL pat
 }
 
 VERSION(){

@@ -8,12 +8,12 @@ W3=https://github.com/chrissnell/graywolf/
 
 CLEAN(){
     #remove previous downloads
-    CK=$(ls ${BAPSRC} 2>/dev/null | grep graywolf_.*\.deb)
+    CK=$(ls ${BAPSRC} 2>/dev/null | grep -E 'graywolf.*\.(deb|rpm)')
     if [ -n "$CK" ]; then
         echo "###############################################"
-        echo "graywolf .deb found in ${BAPSRC}. removing"
+        echo "graywolf package found in ${BAPSRC}. removing"
         echo "###############################################"
-        rm -f ${BAPSRC}/graywolf_*.deb
+        rm -f ${BAPSRC}/graywolf_*.deb ${BAPSRC}/graywolf-*.rpm
     fi
 }
 
@@ -26,14 +26,20 @@ INSTALL(){
     #than once (graywolf_<ver>_linux_amd64.deb -> graywolf_<ver>_amd64.deb),
     #so matching any URL ending in amd64.deb or x86_64.deb keeps this
     #working across naming changes.
+    #openSUSE uses the x86_64 rpm asset instead
+    if [ -n "$IS_SUSE" ]; then
+        ASSET='x86_64\.rpm"'
+    else
+        ASSET='(amd64|x86_64)\.deb"'
+    fi
     URL=$(curl --max-time 20 -s https://api.github.com/repos/chrissnell/graywolf/releases/latest \
         | grep '"browser_download_url":' \
-        | grep -E '(amd64|x86_64)\.deb"' \
+        | grep -E "${ASSET}" \
         | head -1 \
         | sed 's/.*"browser_download_url":[[:space:]]*"//;s/".*//')
 
     if [ -z "${URL}" ]; then
-        echo "ERROR: could not find an amd64 .deb asset URL on the latest graywolf release"
+        echo "ERROR: could not find an x86_64 package asset URL on the latest graywolf release"
     else
         PKG=$(basename "${URL}")
 
@@ -44,14 +50,14 @@ INSTALL(){
         if [ ! -f "${BAPSRC}/${PKG}" ]; then
             echo "ERROR: failed to download ${PKG} from ${URL}"
         else
-            sudo -A apt install -y "${BAPSRC}/${PKG}"
+            PKG_INSTALL_FILE "${BAPSRC}/${PKG}"
         fi
     fi
 }
 
 
 REMOVE(){
-    sudo -A dpkg --remove graywolf
+    PKG_REMOVE_LOCAL graywolf
 }
 
 VERSION(){
@@ -60,7 +66,7 @@ VERSION(){
         NEWVER=$(curl --max-time 20 -s https://api.github.com/repos/chrissnell/graywolf/releases/latest \
             | grep '"tag_name":' | head -1 | sed 's/.*"tag_name":[[:space:]]*"v\{0,1\}//;s/".*//')
     else
-        CURRENT=$(dpkg-query -W -f='${Version}' graywolf 2>/dev/null)
+        CURRENT=$(PKG_VERSION graywolf)
         [ -z "${CURRENT}" ] && CURRENT=0
         NEWVER=$(curl --max-time 20 -s https://api.github.com/repos/chrissnell/graywolf/releases/latest \
             | grep '"tag_name":' | head -1 | sed 's/.*"tag_name":[[:space:]]*"v\{0,1\}//;s/".*//')

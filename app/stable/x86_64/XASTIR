@@ -8,11 +8,11 @@ W3=
 
 INSTALL(){
 
-    sudo -A apt install -y xastir
+    PKG_INSTALL xastir
 }
 
 REMOVE(){
-    sudo -A apt purge -y xastir
+    PKG_REMOVE xastir
 }
 
 

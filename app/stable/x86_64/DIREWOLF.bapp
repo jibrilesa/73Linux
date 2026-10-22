@@ -24,7 +24,7 @@ INSTALL(){
 
     PACKAGE=direwolf
     CLEANSOURCE
-    sudo -A apt install -y libasound2-dev cmake libudev-dev
+    PKG_INSTALL libasound2-dev cmake libudev-dev
     cd ${BAPSRC} || return
     git clone https://www.github.com/wb2osz/direwolf
     cd ${BAPSRC}/direwolf || return

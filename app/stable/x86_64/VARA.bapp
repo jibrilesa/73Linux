@@ -65,7 +65,7 @@ export WINEARCH=win32
 #install dependencies
 APP=Dependencies
 HEADER
-sudo -A apt install -y wine-stable winetricks 
+PKG_INSTALL wine-stable winetricks 
 
 #install with wintricks
 APP=winetricks
