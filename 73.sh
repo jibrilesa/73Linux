@@ -134,6 +134,13 @@ if ! hash git 2>/dev/null; then
 	PKG_INSTALL git
 fi
 
+#nothing below works without yad. This usually means sudo could not
+#ask for a password, e.g. 73.sh was not started from a terminal.
+if ! hash yad 2>/dev/null; then
+	echo "ERROR: yad could not be installed. Run 73.sh from a terminal so sudo can ask for your password."
+	exit 1
+fi
+
 #####################################
 #	Verify not run as root
 #####################################
@@ -175,7 +182,7 @@ if [ ! -f "$BAPSYSINFO" ]; then
     fi
 
     #blank check
-    if [ $N0CALL = "||" ] || [ $N0CALL = "" ]; then
+    if [ "$N0CALL" = "||" ] || [ -z "$N0CALL" ]; then
         echo -e "\n ERROR: CRITICAL: need a radio call to operate, nothing heard QRZ?"
         exit 1
 
